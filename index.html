@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vlad-Constantin Ilie — DevOps Engineer</title>
+<style>
+  :root {
+    --bg: #000000;
+    --panel: #0a0a0a;
+    --line: #2a2a2a;
+    --text: #f2f2f2;
+    --dim: #8a8a8a;
+    --accent: #FF6A00;
+    --accent-dim: #8a3800;
+    --accent-soft: rgba(255, 106, 0, 0.1);
+    --mono: "Consolas", "SF Mono", "Courier New", monospace;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; scroll-snap-type: y proximity; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  a { color: var(--text); text-decoration: none; }
+  a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+  .dot-label {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.5em;
+    text-transform: uppercase;
+    color: var(--dim);
+  }
+
+  .sr {
+    position: absolute; width: 1px; height: 1px; overflow: hidden;
+    clip: rect(0 0 0 0); white-space: nowrap;
+  }
+
+  .wrap { max-width: 960px; margin: 0 auto; padding: 0 24px; }
+
+  /* ---------- Full-screen panels ---------- */
+  .panel {
+    min-height: 100vh;
+    min-height: 100svh;
+    display: flex;
+    align-items: center;
+    padding: 110px 0 48px;
+    border-top: 1px solid var(--line);
+    scroll-snap-align: start;
+  }
+  .panel > .wrap { width: 100%; }
+  .hero { border-top: none; }
+
+  /* ---------- Header ---------- */
+  header {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 50;
+    border-bottom: 1px solid var(--line);
+    background: rgba(0, 0, 0, 0.85);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+    padding: 20px 0;
+  }
+  header .wrap {
+    display: flex; justify-content: space-between; align-items: center;
+    flex-wrap: wrap; gap: 10px;
+  }
+  .brand { display: flex; align-items: center; gap: 14px; }
+
+  .glyph { display: grid; grid-template-columns: repeat(5, 8px); grid-auto-rows: 8px; gap: 3px; }
+  .glyph span { width: 8px; height: 8px; border-radius: 50%; background: var(--line); }
+  .glyph span.on { background: var(--text); }
+  .glyph span.accent { background: var(--accent); }
+
+  nav.main a {
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--dim);
+    margin-left: 28px;
+    transition: color 0.15s;
+  }
+  nav.main a:hover, nav.main a.on { color: var(--accent); }
+
+  /* ---------- Vertical section slider (right) ---------- */
+  .rail {
+    position: fixed; right: 12px; top: 50%; transform: translateY(-50%);
+    z-index: 60; display: flex; flex-direction: column; gap: 6px;
+  }
+  .rail::before {
+    content: ""; position: absolute; left: 50%; top: 12px; bottom: 12px;
+    width: 1px; background: var(--line);
+  }
+  .rail a {
+    position: relative; width: 26px; height: 26px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .rail i {
+    position: relative; width: 12px; height: 12px; border-radius: 50%;
+    border: 2px solid #555; background: var(--bg);
+    transition: background 0.25s, border-color 0.25s, transform 0.25s;
+  }
+  .rail a:hover i { border-color: var(--accent); }
+  .rail a.on i { background: var(--accent); border-color: var(--accent); transform: scale(1.15); }
+  .rail a.on i::before, .rail a.on i::after,
+  .job.now .node::after {
+    content: ""; position: absolute; inset: -2px; border-radius: 50%;
+    border: 2px solid var(--accent);
+    animation: ripple 1.9s ease-out infinite;
+  }
+  .rail a.on i::before { animation-delay: 0.95s; }
+  @keyframes ripple {
+    0% { transform: scale(1); opacity: 0.85; }
+    100% { transform: scale(3); opacity: 0; }
+  }
+  .rail a b {
+    position: absolute; right: 32px; font: 400 0.68rem var(--mono);
+    letter-spacing: 0.2em; text-transform: uppercase; color: var(--text);
+    background: var(--bg); border: 1px solid var(--line); padding: 2px 8px;
+    white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity 0.15s;
+  }
+  @media (hover: hover) { .rail a:hover b, .rail a:focus-visible b { opacity: 1; } }
+
+  /* ---------- Typing / cursor ---------- */
+  .t { display: inline-block; min-height: 1.4em; }
+  .t.cursor::after {
+    content: ""; display: inline-block; width: 0.55em; height: 1.05em;
+    margin-left: 3px; vertical-align: -0.18em; background: var(--accent);
+    animation: blink 1s steps(1) infinite;
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  /* ---------- Hero ---------- */
+  .hero-flex {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 40px; flex-wrap: wrap;
+  }
+  .hero-text { flex: 1 1 480px; }
+
+  .hero-photo { flex: 0 0 auto; width: 220px; }
+  .hero-photo img {
+    width: 100%; aspect-ratio: 1 / 1; object-fit: cover; border-radius: 12px;
+    border: 1px solid var(--line); display: block;
+    filter: grayscale(1) contrast(1.05); transition: filter 0.3s;
+  }
+  .hero-photo img:hover { filter: none; }
+
+  /* dotted avatar — a 9x9 grid spelling V and I */
+  .avatar {
+    width: 100%; aspect-ratio: 1 / 1; border-radius: 12px;
+    border: 1px solid var(--line); background: var(--panel);
+    display: grid; grid-template-columns: repeat(7, 1fr);
+    gap: 7px; padding: 13%; align-content: center;
+  }
+  .avatar span { aspect-ratio: 1; border-radius: 50%; background: var(--line); }
+  .avatar span.on { background: var(--text); }
+  .avatar span.accent { background: var(--accent); }
+
+  .term {
+    margin-top: 12px; padding: 8px 12px; border: 1px solid var(--line);
+    background: #050505; font: 0.78rem var(--mono); letter-spacing: 0.04em;
+    white-space: nowrap; overflow: hidden;
+  }
+  .term .p { color: var(--accent); }
+
+  .status {
+    display: inline-flex; align-items: center; gap: 10px;
+    border: 1px solid var(--line); padding: 6px 14px; margin-bottom: 34px;
+  }
+  .status .t { font: 0.82rem var(--mono); letter-spacing: 0.08em; color: var(--text); }
+  .status-dot {
+    width: 8px; height: 8px; border-radius: 50%; background: var(--accent);
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.25; } }
+
+  .hero h1 {
+    font-family: var(--mono);
+    font-size: clamp(1.55rem, 6vw, 4rem);
+    font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; line-height: 1.15;
+  }
+  .hero h1 .accent { color: var(--accent); }
+
+  .tagline { max-width: 620px; margin-top: 24px; color: var(--dim); font-size: 1.05rem; }
+  .tagline strong { color: var(--text); font-weight: 600; }
+
+  .coords { margin-top: 32px; display: grid; gap: 14px; }
+  .loc { font: 0.78rem var(--mono); letter-spacing: 0.2em; color: var(--dim); text-transform: uppercase; }
+
+  /* ---------- Contact buttons ---------- */
+  .contact-row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 9px;
+    font: 0.8rem var(--mono); letter-spacing: 0.04em;
+    padding: 9px 14px; border: 1px solid var(--accent-dim); border-radius: 4px;
+    background: var(--accent-soft); color: var(--text);
+    transition: background 0.15s, color 0.15s, border-color 0.15s, transform 0.15s;
+  }
+  .btn svg { width: 16px; height: 16px; flex: none; color: var(--accent); transition: color 0.15s; }
+  .btn:hover { background: var(--accent); border-color: var(--accent); color: #000; transform: translateY(-2px); }
+  .btn:hover svg { color: #000; }
+  .btn.lg { font-size: 0.95rem; padding: 13px 22px; }
+  .btn.lg svg { width: 19px; height: 19px; }
+
+  /* ---------- Section head ---------- */
+  .sec-head { display: flex; align-items: baseline; gap: 18px; margin-bottom: 30px; }
+  .sec-head .num { font: 0.85rem var(--mono); color: var(--accent); letter-spacing: 0.2em; }
+  .sec-head h2 { font-size: 1.1rem; font-weight: 600; letter-spacing: 0.25em; text-transform: uppercase; }
+
+  /* ---------- Project cards ---------- */
+  .projects { display: grid; gap: 18px; }
+
+  .card {
+    display: block; position: relative; cursor: pointer;
+    border: 1px solid var(--line); border-left: 3px solid var(--accent);
+    background: var(--panel); padding: 24px 26px;
+    transition: border-color 0.15s, transform 0.15s, background 0.15s, box-shadow 0.15s;
+  }
+  .card:hover {
+    border-color: var(--accent); background: #101010;
+    transform: translateY(-3px); box-shadow: 0 8px 28px rgba(255, 106, 0, 0.12);
+  }
+  .card .top { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 12px; }
+  .card h3 { font: 1rem var(--mono); letter-spacing: 0.15em; text-transform: uppercase; }
+  .card .tag {
+    font: 0.65rem var(--mono); letter-spacing: 0.25em; text-transform: uppercase;
+    color: var(--accent); border: 1px solid var(--accent-dim); padding: 4px 10px; white-space: nowrap;
+  }
+  .card p { color: var(--dim); font-size: 0.95rem; max-width: 720px; }
+  .card p strong { color: var(--text); font-weight: 600; }
+  .stack { margin-top: 16px; display: flex; flex-wrap: wrap; gap: 8px; }
+  .stack span {
+    font: 0.68rem var(--mono); letter-spacing: 0.15em; text-transform: uppercase;
+    background: #161616; border: 1px solid var(--line); padding: 4px 10px;
+  }
+  .cta {
+    margin-top: 20px; padding-top: 16px; border-top: 1px dashed var(--line);
+    display: flex; align-items: center; justify-content: space-between; gap: 14px;
+  }
+  .cta .url {
+    font: 0.74rem var(--mono); color: var(--dim); min-width: 0;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .cta .go {
+    flex: none; font: 0.78rem var(--mono); letter-spacing: 0.06em;
+    color: var(--accent); border: 1px solid var(--accent); padding: 7px 14px; border-radius: 4px;
+    transition: background 0.15s, color 0.15s;
+  }
+  .cta .go em { font-style: normal; display: inline-block; transition: transform 0.15s; }
+  .card:hover .go { background: var(--accent); color: #000; }
+  .card:hover .go em { transform: translate(2px, -2px); }
+
+  /* ---------- Work timeline ---------- */
+  .timeline { display: grid; }
+  .job {
+    display: grid; grid-template-columns: 130px 32px 1fr;
+    column-gap: 12px; padding-bottom: 28px;
+  }
+  .job:last-child { padding-bottom: 0; }
+  .when { grid-column: 1; text-align: right; padding-top: 2px; font: 0.78rem var(--mono); letter-spacing: 0.1em; color: var(--dim); text-transform: uppercase; }
+  .job.now .when { color: var(--accent); }
+
+  .rail-t { grid-column: 2; position: relative; }
+  .rail-t::before {
+    content: ""; position: absolute; left: 50%; top: 20px; bottom: -28px;
+    width: 2px; margin-left: -1px;
+    background: linear-gradient(var(--accent-dim), var(--line));
+  }
+  .job:last-child .rail-t::before { display: none; }
+  .node {
+    position: absolute; left: 50%; top: 5px; width: 14px; height: 14px; margin-left: -7px;
+    border-radius: 50%; background: var(--bg); border: 2px solid var(--dim);
+  }
+  .job.now .node { background: var(--accent); border-color: var(--accent); box-shadow: 0 0 12px rgba(255, 106, 0, 0.6); }
+  .job.now .node::after { inset: -2px; }
+
+  .body { grid-column: 3; border: 1px solid var(--line); background: var(--panel); padding: 18px 22px; }
+  .job.now .body { border-color: var(--accent-dim); }
+  .body h3 { font-size: 1rem; font-weight: 600; margin-bottom: 2px; }
+  .org { font: 0.75rem var(--mono); letter-spacing: 0.15em; color: var(--dim); text-transform: uppercase; margin-bottom: 8px; }
+  .body p { color: var(--dim); font-size: 0.92rem; max-width: 680px; }
+
+  /* ---------- Capabilities ---------- */
+  .skills { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 18px; }
+  .skill-group {
+    position: relative; overflow: hidden; padding: 24px;
+    border: 1px solid var(--line); background: linear-gradient(180deg, #131313, var(--panel));
+    transition: border-color 0.2s, transform 0.2s;
+  }
+  .skill-group::before {
+    content: ""; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, var(--accent), transparent);
+  }
+  .skill-group:hover { border-color: var(--accent-dim); transform: translateY(-2px); }
+  .sg-head { display: flex; align-items: center; gap: 12px; margin-bottom: 18px; }
+  .ico {
+    width: 36px; height: 36px; display: grid; place-items: center; flex: none;
+    border: 1px solid var(--accent-dim); background: var(--accent-soft); border-radius: 6px;
+    color: var(--accent); font: 700 0.78rem var(--mono);
+  }
+  .skill-group h3 { font-size: 0.9rem; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; }
+  .chips { list-style: none; display: flex; flex-wrap: wrap; gap: 8px; }
+  .chips li {
+    font: 0.78rem var(--mono); color: #eaeaea; background: #181818;
+    border: 1px solid #3a3a3a; border-radius: 4px; padding: 6px 11px;
+    transition: border-color 0.15s, color 0.15s, background 0.15s;
+  }
+  .chips li:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+
+  /* ---------- Contact / footer ---------- */
+  footer.panel { justify-content: center; text-align: center; }
+  .eot { display: block; margin-bottom: 28px; font: 1.05rem var(--mono); letter-spacing: 0.06em; color: var(--dim); }
+  footer .contact-row { justify-content: center; gap: 14px; }
+  .fine { margin-top: 34px; color: #555; font: 0.68rem var(--mono); letter-spacing: 0.2em; }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width: 1060px) { .panel > .wrap { padding-right: 52px; } }
+
+  @media (max-width: 640px) {
+    header { padding: 14px 0; }
+    nav.main a { margin-left: 0; margin-right: 14px; letter-spacing: 0.15em; }
+    .panel { padding: 120px 0 40px; }
+    .hero-photo { width: 170px; }
+    .avatar { gap: 5px; }
+    .term { font-size: 0.72rem; padding: 8px 10px; }
+    .hero-flex { gap: 28px; }
+    .card { padding: 20px 18px; }
+    .cta .url { display: none; }
+    .cta { justify-content: flex-end; }
+    .cta .go { width: 100%; text-align: center; }
+    .job { grid-template-columns: 22px 1fr; column-gap: 10px; }
+    .rail-t { grid-column: 1; grid-row: 1 / span 2; }
+    .when { grid-column: 2; grid-row: 1; text-align: left; margin-bottom: 6px; }
+    .body { grid-column: 2; grid-row: 2; padding: 16px; }
+    .skills { grid-template-columns: 1fr; }
+    .btn.lg { font-size: 0.85rem; padding: 11px 16px; }
+    .rail { right: 6px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    * { animation: none !important; transition: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-gh" viewBox="0 0 16 16"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></symbol>
+  <symbol id="i-mail" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/></g></symbol>
+  <symbol id="i-tel" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 1.1 4.2 2 2 0 0 1 3.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L7.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></symbol>
+</svg>
+
+<nav class="rail" aria-label="Sections">
+  <a href="#top"><b>Intro</b><i></i></a>
+  <a href="#projects"><b>Projects</b><i></i></a>
+  <a href="#work"><b>Work</b><i></i></a>
+  <a href="#skills"><b>Skills</b><i></i></a>
+  <a href="#contact"><b>Contact</b><i></i></a>
+</nav>
+
+<header>
+  <div class="wrap">
+    <div class="brand">
+      <div class="glyph" aria-hidden="true">
+        <span class="on"></span><span></span><span class="accent"></span><span></span><span class="on"></span>
+        <span></span><span class="on"></span><span></span><span class="on"></span><span></span>
+        <span class="accent"></span><span></span><span class="on"></span><span></span><span class="accent"></span>
+        <span></span><span class="on"></span><span></span><span class="on"></span><span></span>
+        <span class="on"></span><span></span><span class="accent"></span><span></span><span class="on"></span>
+      </div>
+      <span class="dot-label">V.ILIE</span>
+    </div>
+    <nav class="main">
+      <a href="#projects">Projects</a>
+      <a href="#work">Work</a>
+      <a href="#skills">Skills</a>
+      <a href="#contact">Contact</a>
+    </nav>
+  </div>
+</header>
+
+<div class="hero panel" id="top">
+  <div class="wrap hero-flex">
+    <div class="hero-text">
+      <div class="status">
+        <span class="status-dot"></span>
+        <span class="t" data-next="#hello">Ready to deploy curiosity</span>
+      </div>
+      <h1>Vlad-Constantin<br>Ilie<span class="accent">.</span></h1>
+      <p class="tagline">
+        <strong>DevOps Engineer</strong> at ING Bank Romania, supporting the Lending &amp; Insurance
+        domain together with a team I genuinely enjoy working with. I care about doing things well and
+        doing them together — most of what I've automated started as a way to make my colleagues' days
+        a little easier and then I started loving it. <strong>I genuinely go to work with a smile and I am eager for a new day to learn.</strong> Off the clock I tinker with Linux hardening and config management out of sheer
+        curiosity.
+      </p>
+      <div class="coords">
+        <span class="loc">44.43°N 26.10°E · Bucharest</span>
+        <div class="contact-row">
+          <a class="btn" href="https://github.com/VladCIlie"><svg aria-hidden="true"><use href="#i-gh"/></svg>github.com/VladCIlie</a>
+          <a class="btn" href="mailto:vlad.ilie999@pm.me"><svg aria-hidden="true"><use href="#i-mail"/></svg>vlad.ilie999@pm.me</a>
+          <a class="btn" href="tel:+40723019494"><svg aria-hidden="true"><use href="#i-tel"/></svg>+40 723 091 494</a>
+        </div>
+      </div>
+    </div>
+
+    <figure class="hero-photo">
+      <div class="avatar" id="avatar" aria-hidden="true"></div>
+      <figcaption class="term"><span class="p">$</span> <span class="t" id="hello" data-chained>echo "hello, world"</span></figcaption>
+    </figure>
+  </div>
+</div>
+
+<section class="panel" id="projects">
+  <div class="wrap">
+    <div class="sec-head"><span class="num">01</span><h2>Selected Projects</h2></div>
+
+    <div class="projects">
+      <a class="card" href="https://github.com/VladCIlie/my-secure-os-public">
+        <div class="top"><h3>my-secure-os</h3><span class="tag">Flagship</span></div>
+        <p>
+          A workstation treated like a production server. <strong>ansible-pull</strong> converges every
+          machine to a git-committed hardened state on an hourly systemd timer: fapolicyd execution
+          allow-listing, snap purged and pinned out, curated Flatpak remote, browser enterprise-policy
+          lockdown, and protected files made <strong>immutable</strong> between runs. Manual drift is
+          reverted within the hour.
+        </p>
+        <div class="stack"><span>Ansible</span><span>ansible-pull</span><span>systemd</span><span>fapolicyd</span><span>Linux</span><span>GitOps</span></div>
+        <div class="cta"><span class="url">github.com/VladCIlie/my-secure-os-public</span><span class="go">View on GitHub <em>↗</em></span></div>
+      </a>
+
+      <a class="card" href="https://github.com/VladCIlie/passion-projects">
+        <div class="top"><h3>Passion Projects</h3><span class="tag">Toolkit</span></div>
+        <p>
+          A growing collection of automation utilities built for real workflows: PowerShell
+          bulk-import wizarding, <strong>Power Automate flows</strong> that route critical alerts into Teams
+          and validate operational documents, a two-phase <strong>Azure Pipelines + Terraform</strong>
+          change-approval pipeline, an SCCM log watcher, and a Python ticket-classification helper.
+        </p>
+        <div class="stack"><span>PowerShell</span><span>Power Automate</span><span>Python</span><span>Azure Pipelines</span><span>Terraform</span><span>SCCM</span></div>
+        <div class="cta"><span class="url">github.com/VladCIlie/passion-projects</span><span class="go">View on GitHub <em>↗</em></span></div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<section class="panel" id="work">
+  <div class="wrap">
+    <div class="sec-head"><span class="num">02</span><h2>Work</h2></div>
+
+    <div class="timeline">
+      <div class="job now">
+        <div class="when">2025 — Now</div>
+        <div class="rail-t"><span class="node"></span></div>
+        <div class="body">
+          <h3>DevOps Engineer — Lending &amp; Insurance</h3>
+          <div class="org">ING Bank Romania</div>
+          <p>
+            Supporting the production environment and infrastructure for my team, acting as 2nd-line
+            support, and quietly automating the things nobody wants to do twice: Elastic alert routing
+            into Teams, document validation flows, file-transfer pipelines, and a change-request drafting agent.
+          </p>
+        </div>
+      </div>
+
+      <div class="job">
+        <div class="when">2023 — 2025</div>
+        <div class="rail-t"><span class="node"></span></div>
+        <div class="body">
+          <h3>ServiceDesk Engineer</h3>
+          <div class="org">ING Bank Romania</div>
+          <p>
+            Supervised the helpdesk and provided advanced technical support as the escalation tier. 
+            Ran critical-incident communication to management per the ITIL framework. 
+            Double-hatted with the Mobile Support DevOps chapter, helping double the servicedesk's KPIs in six months through real-time Power BI dashboards and RPA robots that automated recurring reports.
+          </p>
+        </div>
+      </div>
+
+      <div class="job">
+        <div class="when">2020 — 2023</div>
+        <div class="rail-t"><span class="node"></span></div>
+        <div class="body">
+          <h3>Helpdesk Officer — IT &amp; Network Support</h3>
+          <div class="org">ING Bank Romania</div>
+          <p>
+            Main point of contact for ING employees nationwide. ServiceNow ticketing, remote
+            troubleshooting, software migrations — and where I learned that helping people is
+            the best way to learn systems.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="panel" id="skills">
+  <div class="wrap">
+    <div class="sec-head"><span class="num">03</span><h2>Capabilities</h2></div>
+
+    <div class="skills">
+      <div class="skill-group">
+        <div class="sg-head"><span class="ico" aria-hidden="true">&gt;_</span><h3>Automation</h3></div>
+        <ul class="chips"><li>PowerShell</li><li>Power Automate</li><li>Python</li><li>C#</li><li>VBA</li><li>RPA (SAIO Robotics)</li><li>Copilot agents</li></ul>
+      </div>
+      <div class="skill-group">
+        <div class="sg-head"><span class="ico" aria-hidden="true">&lt;/&gt;</span><h3>DevOps</h3></div>
+        <ul class="chips"><li>Ansible</li><li>ansible-pull</li><li>systemd</li><li>Terraform</li><li>Azure Pipelines</li><li>Git/GitHub</li><li>Linux</li></ul>
+      </div>
+      <div class="skill-group">
+        <div class="sg-head"><span class="ico" aria-hidden="true">[!]</span><h3>Operations</h3></div>
+        <ul class="chips"><li>Elastic</li><li>Production monitoring</li><li>ServiceNow</li><li>ITIL 4 (certified)</li><li>SCCM</li><li>2nd-line support</li></ul>
+      </div>
+      <div class="skill-group">
+        <div class="sg-head"><span class="ico" aria-hidden="true">%</span><h3>Data &amp; Reporting</h3></div>
+        <ul class="chips"><li>Power BI</li><li>SQL</li><li>KPI frameworks (FCR, SLA)</li><li>Excel</li></ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="panel" id="contact">
+  <div class="wrap">
+    <span class="eot t">// End of transmission</span>
+    <div class="contact-row">
+      <a class="btn lg" href="https://github.com/VladCIlie"><svg aria-hidden="true"><use href="#i-gh"/></svg>GitHub</a>
+      <a class="btn lg" href="mailto:vlad.ilie999@pm.me"><svg aria-hidden="true"><use href="#i-mail"/></svg>Email</a>
+      <a class="btn lg" href="tel:+40723019494"><svg aria-hidden="true"><use href="#i-tel"/></svg>+40 723 091 494</a>
+    </div>
+    <div class="fine">© 2026 VLAD-CONSTANTIN ILIE · NO TRACKERS · NO ANALYTICS · STATIC BY DESIGN</div>
+  </div>
+</footer>
+
+<script>
+(function () {
+  // Avatar: 7x7 dot grid — an orange V with a white I standing inside it
+  var rows = ["V..I..V", ".......", ".V.I.V.", ".......", "..VIV..", ".......", "...V..."];
+  document.getElementById('avatar').innerHTML = rows.join('').split('').map(function (c) {
+    return '<span' + (c === 'V' ? ' class="accent"' : c === 'I' ? ' class="on"' : '') + '></span>';
+  }).join('');
+
+  // Section slider + nav highlight
+  var panels = [].slice.call(document.querySelectorAll('.panel'));
+  var dots = [].slice.call(document.querySelectorAll('.rail a'));
+  var links = [].slice.call(document.querySelectorAll('nav.main a'));
+  var spy = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) {
+      if (!e.isIntersecting) return;
+      var i = panels.indexOf(e.target);
+      dots.forEach(function (d, j) {
+        d.classList.toggle('on', i === j);
+        if (i === j) d.setAttribute('aria-current', 'true'); else d.removeAttribute('aria-current');
+      });
+      links.forEach(function (a) { a.classList.toggle('on', a.getAttribute('href') === '#' + e.target.id); });
+    });
+  }, { rootMargin: '-50% 0px -49% 0px' });
+  panels.forEach(function (p) { spy.observe(p); });
+
+  // Typing effect (one caret per panel, on the line most recently typed)
+  var still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var els = [].slice.call(document.querySelectorAll('.t'));
+  els.forEach(function (el) {
+    el._t = el.textContent;
+    var s = document.createElement('span');
+    s.className = 'sr'; s.textContent = el._t;
+    el.parentNode.insertBefore(s, el);
+    el.setAttribute('aria-hidden', 'true');
+    el.textContent = '';
+  });
+
+  function type(el) {
+    if (el._done) return;
+    el._done = true;
+    var scope = el.closest('.panel');
+    scope.querySelectorAll('.cursor').forEach(function (c) { c.classList.remove('cursor'); });
+    el.classList.add('cursor');
+    var i = 0;
+    (function step() {
+      el.textContent = el._t.slice(0, ++i);
+      if (still || i >= el._t.length) {
+        el.textContent = el._t;
+        var n = el.dataset.next && document.querySelector(el.dataset.next);
+        if (n) setTimeout(function () { type(n); }, still ? 0 : 500);
+        return;
+      }
+      setTimeout(step, 45 + Math.random() * 55);
+    })();
+  }
+
+  var typer = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) {
+      if (e.isIntersecting) { type(e.target); typer.unobserve(e.target); }
+    });
+  }, { threshold: 0.6 });
+  els.forEach(function (el) { if (!el.hasAttribute('data-chained')) typer.observe(el); });
+})();
+</script>
+</body>
+</html>
